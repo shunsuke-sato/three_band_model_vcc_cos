@@ -26,7 +26,7 @@ module global_variables
   real(8),parameter :: mass_c1 = -0.55d0, mass_c2 = mass_c1
   real(8),parameter :: piz_dc1 = 1d0,piz_dc2 = 0d0
   real(8),parameter :: piz_dcc = 0d0
-  real(8),parameter :: lattice_constant = (3.567d0/a_B)*0.5
+  real(8),parameter :: lattice_constant = sqrt(2d0/(abs(mass_c1)*(20d0/27.2114d0)))
 
 ! Time-propagation
   integer :: Nt
