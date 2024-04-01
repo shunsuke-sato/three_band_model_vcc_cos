@@ -15,7 +15,7 @@ subroutine time_propagation
   jtz(0) = jav_t
   do it = 0,Nt
 
-    ss_l = sum(abs(zCt(:,:,:))**2)/(2d0*dble(NKrz))
+    ss_l = sum(abs(zCt(:,:,:))**2)/nk
     call MPI_ALLREDUCE(ss_l,ss,1,MPI_REAL8,MPI_SUM,MPI_COMM_WORLD,ierr)
     if(myrank==0)write(*,*)"norm",ss
 

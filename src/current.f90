@@ -10,20 +10,20 @@ subroutine current(it,jav)
   integer,intent(in) :: it
   real(8),intent(out) :: jav
   real(8) :: jav1,jav2,jz_intra,jz_inter,jav_l
-  real(8) :: mass_c1_i,mass_c2_i
-  integer :: ik,ikr,ikz
+  real(8) :: vel_t(3)
+  integer :: ik
 
   kz(:) = kz0(:) + Act(it)*fact_intra
-  mass_c1_i = 1d0/mass_c1
-  mass_c2_i = 1d0/mass_c2
+
   jav_l = 0d0
-  do ik = NKrz_s,NKrz_e
-    ikr = ikr_table(ik); ikz = ikz_table(ik)
+  do ik = NK_s,NK_e
+    call calc_band_velocity(vel_t, kx(ik), ky(ik), kz(ik))
 
 ! state 1
-    jz_intra = kz(ikz)*( &
-      (abs(zCt(2,1,ik))**2)*mass_c1_i &
-      +(abs(zCt(3,1,ik))**2)*mass_c2_i )
+    jz_intra = vel_t(1)*abs(zCt(1,1,ik))**2 &
+              +vel_t(2)*abs(zCt(2,1,ik))**2 &
+              +vel_t(3)*abs(zCt(3,1,ik))**2
+
 
     jz_inter = 2d0*real( &
       piz_dc1*conjg(zCt(1,1,ik))*zCt(2,1,ik) &
@@ -31,9 +31,9 @@ subroutine current(it,jav)
      +piz_dcc*conjg(zCt(2,1,ik))*zCt(3,1,ik) &
       )
 
-    jav_l = jav_l + (jz_intra+jz_inter)*kr(ikr)
+    jav_l = jav_l + jz_intra+jz_inter
   end do
-  jav_l=jav_l*2d0/((2d0*pi)**3)*(2d0*pi*dkr*dkz) 
+  jav_l=jav_l*2d0/((2d0*pi)**3)*(dkx*dky*dkz) 
 
   call MPI_ALLREDUCE(jav_l,jav,1,MPI_REAL8,MPI_SUM,MPI_COMM_WORLD,ierr)
 

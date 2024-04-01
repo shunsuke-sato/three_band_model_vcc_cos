@@ -1,7 +1,8 @@
-FC = mpif90 -O2 ## gfotran
+#FC = mpif90 -O2 ## gfotran
 #FC = mpiifort -O3 -xHOST -ipo -ip ## intel
 #FC = mpiifort -O3 -xHOST -ipo -ip ## intel
 #FC = mpifrtpx -O3 -Kfast ##FX100@Nagoya
+FC = mpif90 -O0 -fbounds-check ## gfotran
 
 LN = ##
 

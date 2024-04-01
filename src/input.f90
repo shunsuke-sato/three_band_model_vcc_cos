@@ -9,7 +9,6 @@ subroutine input
   implicit none
 
   if(myrank == 0)then
-    read(*,*)lattice_constant
     read(*,*)nkx, nky, nkz
     read(*,*)Nt,dt
     read(*,*)envelope_1
@@ -19,7 +18,6 @@ subroutine input
     read(*,*)Tdelay_fs
   end if
 
-  call MPI_BCAST(lattice_constant,1,MPI_REAL8,0,MPI_COMM_WORLD,ierr)  
   call MPI_BCAST(nkx,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)  
   call MPI_BCAST(nky,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)  
   call MPI_BCAST(NKz,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)  

@@ -7,7 +7,7 @@
 subroutine preparation
   use global_variables
   implicit none
-  integer :: ikr,ikz,ik
+  integer :: ikx,iky,ikz,ik
 
 
   nk = nkx*nky*nkz
@@ -33,7 +33,7 @@ subroutine preparation
 !  write(*,"(9I9)")myrank,NKrz_s,NKrz_e
 
   allocate(zCt(3,1,nk_s:nk_e),eps(3,nk_s:nk_e))
-  allocate(kx0(nk),kz(nk))
+  allocate(kx0(nk),kx(nk))
   allocate(ky0(nk),ky(nk))
   allocate(kz0(nk),kz(nk))
 
@@ -45,9 +45,9 @@ subroutine preparation
 
 ! table
   ik = 0
-  do ikx = 0,nkx
-    do iky = 0,nky
-      do ikz = 0,nkz
+  do ikx = 0,nkx-1
+    do iky = 0,nky-1
+      do ikz = 0,nkz-1
 
         ik = ik + 1
         ikx_table(ik) = ikx
@@ -65,9 +65,9 @@ subroutine preparation
 
   
   ik = 0
-  do ikx = 0,nkx
-    do iky = 0,nky
-      do ikz = 0,nkz
+  do ikx = 0,nkx-1
+    do iky = 0,nky-1
+      do ikz = 0,nkz-1
 
         ik = ik + 1
         kx0(ik) = ikx_table(ik)*dkx

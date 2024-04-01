@@ -10,7 +10,7 @@ subroutine init_Ac
   integer :: it
   real(8) :: tt
 
-  allocate(Act(-1:Nt+1),jtz(0:Nt+1),jtz_intra(0:Nt+1),jtz_inter(0:Nt+1))
+  allocate(Act(-1-1:Nt+1+1),jtz(0:Nt+1),jtz_intra(0:Nt+1),jtz_inter(0:Nt+1))
 
   E0_1=5.338d-9*sqrt(Iwcm2_1)
   omega_1 = omega_ev_1/(2d0*Ry)

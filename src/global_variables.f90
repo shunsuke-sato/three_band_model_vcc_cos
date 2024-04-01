@@ -17,15 +17,16 @@ module global_variables
   integer,allocatable :: ikx_table(:),iky_table(:),ikz_table(:)
   real(8) :: dkx, dky, dkz
   real(8),allocatable :: kx(:), ky(:), kz(:)
+  real(8),allocatable :: kx0(:), ky0(:), kz0(:)
   real(8),parameter :: fact_intra = 1d0, fact_inter = 1d0
 ! d: (semi) core , v: valence, c: conduction
-  real(8),parameter :: eps_d = -(0.1440380881432848d+001 - 0.2586486109145065d+00)
+  real(8),parameter :: eps_d = -32.3d0/27.2114d0
   real(8),parameter :: eps_c1 = 0d0
   real(8),parameter :: eps_c2 = eps_c1 + 0.2d0/(2d0*Ry) 
-  real(8),parameter :: mass_c1 = 2.5d0, mass_c2 = mass_c1
+  real(8),parameter :: mass_c1 = -0.55d0, mass_c2 = mass_c1
   real(8),parameter :: piz_dc1 = 1d0,piz_dc2 = 0d0
   real(8),parameter :: piz_dcc = 0d0
-  real(8),parameter :: lattice_constant
+  real(8),parameter :: lattice_constant = (3.567d0/a_B)*0.5
 
 ! Time-propagation
   integer :: Nt
@@ -54,18 +55,43 @@ module global_variables
       real(8),intent(out) :: eps_t(3)
       real(8),intent(in):: kx_t, ky_t, kz_t
 
+
+
       eps_t = 0d0
 
       eps_t(1) = eps_d
-      eps_t(2) = eps_c1 + 0.5d0/mass_c1*(1d0 &
-          -cos(0.5d0*lattice_const*kx_t)**2 &
-          *cos(0.5d0*lattice_const*ky_t)**2 &
-          *cos(0.5d0*lattice_const*kz_t)**2)
 
-      eps_t(3) = eps_c2 + 0.5d0/mass_c2*(1d0 &
-          -cos(0.5d0*lattice_const*kx_t)**2 &
-          *cos(0.5d0*lattice_const*ky_t)**2 &
-          *cos(0.5d0*lattice_const*kz_t)**2)
+
+      eps_t(2) = eps_c1 + 1d0/(mass_c1*lattice_constant**2)*(1d0 &
+          -cos(lattice_constant*kx_t) &
+          *cos(lattice_constant*ky_t) &
+          *cos(lattice_constant*kz_t))
+
+      eps_t(3) = eps_c2 + 1d0/(mass_c2*lattice_constant**2)*(1d0 &
+          -cos(lattice_constant*kx_t) &
+          *cos(lattice_constant*ky_t) &
+          *cos(lattice_constant*kz_t))
 
     end subroutine calc_single_particle_energy
+
+    subroutine calc_band_velocity(vel_t, kx_t, ky_t, kz_t)
+      implicit none
+      real(8),intent(out) :: vel_t(3)
+      real(8),intent(in):: kx_t, ky_t, kz_t
+
+      vel_t(1) = 0d0
+
+      vel_t(2) = 1d0/(mass_c1*lattice_constant)*(&
+           sin(lattice_constant*kz_t) &
+          *cos(lattice_constant*kx_t) &
+          *cos(lattice_constant*ky_t))
+
+      vel_t(3) = 1d0/(mass_c2*lattice_constant)*(&
+           sin(lattice_constant*kz_t) &
+          *cos(lattice_constant*kx_t) &
+          *cos(lattice_constant*ky_t))
+
+
+
+    end subroutine calc_band_velocity
 end module global_variables

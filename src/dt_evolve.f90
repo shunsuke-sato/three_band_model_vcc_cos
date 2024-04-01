@@ -8,7 +8,7 @@ subroutine dt_evolve(it) ! Now coding
   use global_variables
   implicit none
   integer,intent(in) :: it
-  integer :: ik,ikr,ikz
+  integer :: ik
   complex(8) :: zHmat(3,3),zEig(3,3)
   complex(8) :: zc1,zc2,zc3
   real(8) :: eps_t(3),de12
@@ -24,16 +24,13 @@ subroutine dt_evolve(it) ! Now coding
   Et_old = Et_old*fact_inter
   Et_new = Et_new*fact_inter
 
-  do ik = NKrz_s,NKrz_e
-    ikr = ikr_table(ik); ikz = ikz_table(ik)
+  do ik = NK_s,NK_e
 
 !== Enforced time-reversal symmetry scheme
 
 !== First half dt
-    kz(ikz) = kz0(ikz) + Act_old
-    eps_t(1) = eps_d
-    eps_t(2) = eps_c1 +0.5d0/mass_c1*(kr(ikr)**2+kz(ikz)**2)
-    eps_t(3) = eps_c2 +0.5d0/mass_c2*(kr(ikr)**2+kz(ikz)**2)
+    kz(ik) = kz0(ik) + Act_old
+    call calc_single_particle_energy(eps_t, kx(ik), ky(ik), kz(ik))
 
     zHmat(1,1) = eps_t(1); zHmat(2,2) = eps_t(2); zHmat(3,3) = eps_t(3)
     zHmat(1,2) = -zI*piz_dc1*Et_old/(eps_t(1)-eps_t(2)); zHmat(2,1)=conjg(zHmat(1,2))
@@ -50,10 +47,8 @@ subroutine dt_evolve(it) ! Now coding
     zCt(:,1,ik)=zc1*zEig(:,1)+zc2*zEig(:,2)+zc3*zEig(:,3)
 
 !== Second half dt
-    kz(ikz) = kz0(ikz) + Act_new
-    eps_t(1) = eps_d
-    eps_t(2) = eps_c1 +0.5d0/mass_c1*(kr(ikr)**2+kz(ikz)**2)
-    eps_t(3) = eps_c2 +0.5d0/mass_c2*(kr(ikr)**2+kz(ikz)**2)
+    kz(ik) = kz0(ik) + Act_new
+    call calc_single_particle_energy(eps_t, kx(ik), ky(ik), kz(ik))
 
     zHmat(1,1) = eps_t(1); zHmat(2,2) = eps_t(2); zHmat(3,3) = eps_t(3)
     zHmat(1,2) = -zI*piz_dc1*Et_old/(eps_t(1)-eps_t(2)); zHmat(2,1)=conjg(zHmat(1,2))
