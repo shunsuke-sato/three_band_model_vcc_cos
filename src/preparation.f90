@@ -70,8 +70,9 @@ subroutine preparation
       do ikz = 0,nkz-1
 
         ik = ik + 1
-        kx0(ik) = ikx_table(ik)*dkx
-        ky0(ik) = iky_table(ik)*dky
+! assume square symmetry
+        kx0(ik) = ikx_table(ik)*dkx*0.5d0 + 0.5d0*dkx
+        ky0(ik) = iky_table(ik)*dky*0.5d0 + 0.5d0*dky
         kz0(ik) = ikz_table(ik)*dkz
 
       end do
