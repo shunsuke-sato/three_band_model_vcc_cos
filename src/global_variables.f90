@@ -20,13 +20,16 @@ module global_variables
   real(8),allocatable :: kx0(:), ky0(:), kz0(:)
   real(8),parameter :: fact_intra = 1d0, fact_inter = 1d0
 ! d: (semi) core , v: valence, c: conduction
-  real(8),parameter :: eps_d = -50d0/27.2114d0 !-32.3d0/27.2114d0
+  real(8),parameter :: eps_d = -32.3d0/27.2114d0
   real(8),parameter :: eps_c1 = 0d0
   real(8),parameter :: eps_c2 = eps_c1 + 0.2d0/(2d0*Ry) 
   real(8),parameter :: mass_c1 = -0.55d0, mass_c2 = mass_c1
   real(8),parameter :: piz_dc1 = 1d0,piz_dc2 = 0d0
   real(8),parameter :: piz_dcc = 0d0
-  real(8),parameter :: lattice_constant = sqrt(2d0/(abs(mass_c1)*(40d0/27.2114d0)))
+  real(8),parameter :: lattice_constant = sqrt(2d0/(abs(mass_c1)*(25d0/27.2114d0)))
+  integer,parameter :: N_BAND_TYPE_cos_cube = 1
+  integer,parameter :: N_BAND_TYPE_cos_q1d = 2
+  integer,parameter :: n_band_type = N_BAND_TYPE_cos_q1d
 
 ! Time-propagation
   integer :: Nt
@@ -59,18 +62,37 @@ module global_variables
 
       eps_t = 0d0
 
-      eps_t(1) = eps_d
+      select case(n_band_type)
+      case(N_BAND_TYPE_cos_cube)
+
+        eps_t(1) = eps_d
 
 
-      eps_t(2) = eps_c1 + 1d0/(mass_c1*lattice_constant**2)*(1d0 &
-          -cos(lattice_constant*kx_t) &
-          *cos(lattice_constant*ky_t) &
-          *cos(lattice_constant*kz_t))
+        eps_t(2) = eps_c1 + 1d0/(mass_c1*lattice_constant**2)*(1d0 &
+            -cos(lattice_constant*kx_t) &
+            *cos(lattice_constant*ky_t) &
+            *cos(lattice_constant*kz_t))
 
-      eps_t(3) = eps_c2 + 1d0/(mass_c2*lattice_constant**2)*(1d0 &
-          -cos(lattice_constant*kx_t) &
-          *cos(lattice_constant*ky_t) &
-          *cos(lattice_constant*kz_t))
+        eps_t(3) = eps_c2 + 1d0/(mass_c2*lattice_constant**2)*(1d0 &
+            -cos(lattice_constant*kx_t) &
+            *cos(lattice_constant*ky_t) &
+            *cos(lattice_constant*kz_t))
+
+      case(N_BAND_TYPE_cos_q1d)
+
+        eps_t(1) = eps_d
+
+
+        eps_t(2) = eps_c1 + 1d0/(mass_c1*lattice_constant**2)*(1d0 &
+            -cos(lattice_constant*kz_t))
+
+        eps_t(3) = eps_c2 + 1d0/(mass_c2*lattice_constant**2)*(1d0 &
+            -cos(lattice_constant*kz_t))
+
+      case default
+        stop "Error in n_band_type"
+
+      end select
 
     end subroutine calc_single_particle_energy
 
@@ -79,19 +101,36 @@ module global_variables
       real(8),intent(out) :: vel_t(3)
       real(8),intent(in):: kx_t, ky_t, kz_t
 
-      vel_t(1) = 0d0
 
-      vel_t(2) = 1d0/(mass_c1*lattice_constant)*(&
-           sin(lattice_constant*kz_t) &
-          *cos(lattice_constant*kx_t) &
-          *cos(lattice_constant*ky_t))
+      select case(n_band_type)
+      case(N_BAND_TYPE_cos_cube)
 
-      vel_t(3) = 1d0/(mass_c2*lattice_constant)*(&
-           sin(lattice_constant*kz_t) &
-          *cos(lattice_constant*kx_t) &
-          *cos(lattice_constant*ky_t))
+        vel_t(1) = 0d0
 
+        vel_t(2) = 1d0/(mass_c1*lattice_constant)*(&
+            sin(lattice_constant*kz_t) &
+            *cos(lattice_constant*kx_t) &
+            *cos(lattice_constant*ky_t))
+        
+        vel_t(3) = 1d0/(mass_c2*lattice_constant)*(&
+            sin(lattice_constant*kz_t) &
+            *cos(lattice_constant*kx_t) &
+            *cos(lattice_constant*ky_t))
 
+      case(N_BAND_TYPE_cos_q1d)
+
+        vel_t(1) = 0d0
+
+        vel_t(2) = 1d0/(mass_c1*lattice_constant) &
+            *sin(lattice_constant*kz_t)
+        
+        vel_t(3) = 1d0/(mass_c2*lattice_constant) &
+            *sin(lattice_constant*kz_t) 
+
+      case default
+        stop "Error in n_band_type"
+
+      end select
 
     end subroutine calc_band_velocity
 end module global_variables
